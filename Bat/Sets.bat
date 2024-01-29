@@ -1,0 +1,1 @@
+clang.exe -o .\Sets\sets.exe .\Sets\sets.c .\LinkedList\linkedlist.c .\Sets\Main_Sets.c  -I .\include\

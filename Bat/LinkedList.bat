@@ -1,0 +1,1 @@
+clang.exe -o .\LinkedList\LinkedList.exe .\LinkedList\linkedlist.c .\LinkedList\MainLinkedList.c -I .\include\

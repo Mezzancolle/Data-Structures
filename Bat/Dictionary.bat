@@ -1,0 +1,1 @@
+clang.exe -o .\Dictionary\Dictionary.exe .\Dictionary\Dictionary.c .\LinkedList\linkedlist.c .\Sets\Sets.c .\Dictionary\Main_Dictionary.c  -I .\include\

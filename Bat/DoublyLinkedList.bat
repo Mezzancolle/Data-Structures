@@ -1,0 +1,1 @@
+clang.exe -o .\LinkedList\DoubliLinkedList.exe .\LinkedList\DoublyLinkedList.c
