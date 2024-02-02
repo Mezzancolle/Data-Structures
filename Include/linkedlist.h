@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define CAST_LIST(x) &(x.list_item)
+#define LIST_ITEM(x) &(x.list_item)
 #define INT_ITEM(x) ((struct int_item*)(x))
 
 struct list_item {

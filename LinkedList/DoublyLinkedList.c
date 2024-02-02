@@ -3,8 +3,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-
-#define CAST_LIST(x) &(x.list_item)
+#define LIST_ITEM(x) &(x.list_item)
 #define INT_ITEM(x) ((struct int_item*)(x))
 
 struct list_item
@@ -35,28 +34,27 @@ struct list_item* list_get_tail(struct list_item* head)
         current_item = current_item->next;
     }
 
-    return last_item;  
-    
+    return last_item;
 };
 
 struct list_item* list_append(struct list_item** head, struct list_item* item)
 {
-    struct list_item* tail = list_get_tail(*head);
+    struct list_item* tail = list_get_tail(*head);  // Get the current tail of the list.
     if (!tail)
     {
-        *head = item;
+        *head = item;  // If the list is empty, set the head to the new item.
         (*head)->count = 1;
     }
     else
     {
-        tail->next = item;
+        tail->next = item;  // Append the new item to the end of the list.
         (*head)->count++;
     }
 
     item->prev = tail;
     item->next = NULL;
 
-    return item;
+    return item;  // Return the appended item.
 };
 
 unsigned int list_lenght(struct list_item* head)
@@ -64,68 +62,68 @@ unsigned int list_lenght(struct list_item* head)
     return head->count;
 }
 
-struct list_item* list_insert_after(struct list_item** head,struct list_item* after, struct list_item* new_item)
+struct list_item* list_insert_after(struct list_item** head, struct list_item* after_item, struct list_item* new_item)
 {
-    if (!after || !new_item)
+    if (!after_item || !new_item)
     {
-        return NULL;
+        return NULL;  // If either the after_item or new_item is NULL, return NULL.
     }
 
-    new_item->prev = after;
-    new_item->next = after->next;
+    new_item->prev = after_item;
+    new_item->next = after_item->next;
 
-    if (after->next)
+    if (after_item->next)
     {
-        after->next->prev = new_item;
+        after_item->next->prev = new_item;  // Update the previous pointer of the item after the new_item.
     }
 
-    after->next = new_item;
+    after_item->next = new_item;  // Update the next pointer of after_item to new_item.
 
-    (*head)->count++;
+    (*head)->count++;  // Increment the count of items in the list.
 
     if (!new_item->next)
     {
-        list_get_tail(new_item);
+        list_get_tail(new_item);  // If new_item is now the last item, update the tail of the list.
     }
 
-    return new_item;
+    return new_item;  // Return the inserted item.
 }
 
-struct list_item* list_insert_before(struct list_item** head, struct list_item* before, struct list_item* new_item)
+struct list_item* list_insert_before(struct list_item** head, struct list_item* before_item, struct list_item* new_item)
 {
-    if (!before || !new_item)
+    if (!before_item || !new_item)
     {
-        return NULL;
+        return NULL;  // If either the before or new_item is NULL, return NULL.
     }
 
-    new_item->next = before;
-    new_item->prev = before->prev;
+    new_item->next = before_item;
+    new_item->prev = before_item->prev;
 
-    if (before->prev)
+    if (before_item->prev)
     {
-        before->prev->next = new_item;
+        before_item->prev->next = new_item;  // Update the next pointer of the item before before_item.
     }
 
-    before->prev = new_item;
+    before_item->prev = new_item;  // Update the prev pointer of before_item to new_item.
 
-    (*head)->count++;
+    (*head)->count++;  // Increment the count of items in the list.
 
     if (!new_item->prev)
     {
         struct list_item* last_head = (*head);
         (*head) = new_item;
         new_item->next = last_head;
-        (*head)->count = last_head->count;
+        (*head)->count = last_head->count;  // If new_item becomes the first item, update the head and count.
     }
-    
-    return new_item;
+
+    return new_item;  // Return the inserted item.
 }
 
 struct list_item* list_remove_by_value(struct list_item** head, int value)
 {
     if (!(*head))
     {
-        return NULL;
+        return NULL;  // If the list is empty, return NULL.
     }
 
     struct list_item* current_head = *head;
@@ -162,42 +160,43 @@ struct list_item* list_remove_by_value(struct list_item** head, int value)
     return current_head;
 }
 
+// Function to shuffle the linked list using Fisher-Yates algorithm
 void list_shuffle(struct list_item** head)
 {
     if (!head || !(*head) || !(*head)->next)
     {
-        return;
+        return;  // If the list is empty or has only one element, return.
     }
 
-    // Inizializza il generatore di numeri casuali con un seme diverso ad ogni esecuzione
+    // Initialize the random number generator with a different seed at each execution
     srand((unsigned int)time(NULL));
 
-    // Calcola la lunghezza della lista
+    // Calculate the length of the list
     unsigned int length = list_lenght(*head);
 
-    // Algoritmo di Fisher-Yates per mescolare la lista
+    // Fisher-Yates algorithm to shuffle the list
     struct list_item* current = *head;
     for (unsigned int i = length - 1; i > 0; --i)
     {
-        // Genera un indice casuale compreso tra 0 e i incluso
+        // Generate a random index between 0 and i (inclusive)
         unsigned int j = rand() % (i + 1);
 
-        // Scambia i valori tra l'elemento corrente e l'elemento alla posizione j
+        // Swap values between the current element and the element at position j
         struct int_item* current_int_item = INT_ITEM(current);
         struct int_item* swap_int_item = INT_ITEM(current);
 
-        // Trova l'elemento alla posizione j
+        // Find the element at position j
         for (unsigned int k = 0; k < j; ++k)
         {
             swap_int_item = INT_ITEM(swap_int_item->list_item.next);
         }
 
-        // Scambia i valori
+        // Swap values
         int temp = current_int_item->value;
         current_int_item->value = swap_int_item->value;
         swap_int_item->value = temp;
 
-        // Passa all'elemento successivo
+        // Move to the next element
         current = current->next;
     }
 }
@@ -230,23 +229,23 @@ int main(int argc, char** argv)
 
     struct int_item int_item;
     int_item.value = 100;
-    list_append(&head, CAST_LIST(int_item));
+    list_append(&head, LIST_ITEM(int_item));
 
     struct int_item int_item1;
     int_item1.value = 120;
-    list_insert_after(&head, head, CAST_LIST(int_item1));
+    list_insert_after(&head, head, LIST_ITEM(int_item1));
 
     struct int_item int_item2;
     int_item2.value = 130;
-    list_insert_after(&head, CAST_LIST(int_item1), CAST_LIST(int_item2));
+    list_insert_after(&head, LIST_ITEM(int_item1), LIST_ITEM(int_item2));
 
     struct int_item int_item3;
     int_item3.value = 99;
-    list_insert_before(&head, CAST_LIST(int_item2), CAST_LIST(int_item3));
+    list_insert_before(&head, LIST_ITEM(int_item2), LIST_ITEM(int_item3));
 
     struct int_item int_item4;
     int_item4.value = 44;
-    list_insert_before(&head, head, CAST_LIST(int_item4));
+    list_insert_before(&head, head, LIST_ITEM(int_item4));
 
     list_remove_by_value(&head, 100);
 

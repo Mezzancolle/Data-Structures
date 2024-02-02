@@ -1,11 +1,12 @@
 #include <Dictionary.h>
 
+// Function to create a new dictionary with a set of specified size, maximum elements per bucket, and value type
 struct dictionary* dictionary_new(const size_t hashmap_size, const size_t max_elements_per_bucket, enum ValueType value_type)
 {
     struct dictionary* dict = malloc(sizeof(struct dictionary));
     if (!dict)
     {
-        return NULL;
+        return NULL;  // Return NULL if memory allocation fails.
     }
 
     dict->set = set_table_new(hashmap_size, max_elements_per_bucket);
@@ -13,48 +14,54 @@ struct dictionary* dictionary_new(const size_t hashmap_size, const size_t max_el
     if (!dict->set)
     {
         free(dict);
-        return NULL;
+        return NULL;  // Return NULL if creating the set fails.
     }
 
     dict->value_type = value_type;
 
-    return dict;
+    return dict;  // Return the newly created dictionary.
 }
 
+// Function to insert a key-value pair into the set table within the dictionary
 struct set_node* set_insert_key_value(struct set_table* table, const char* key, const size_t key_len, struct dict_node* value)
 {
     size_t hash = djb33x_hash(key, key_len);
 
     size_t index = hash % table->hashmap_size;
 
+    // Check if the key already exists in the set
     struct set_node* existing_node = set_find(table, key);
     if (existing_node)
     {
         printf("Element already exists in the set\n");
-        return NULL;
+        return NULL;  // Return NULL if the key already exists.
     }
 
     struct set_node* head = table->nodes[index];
 
     size_t element_count = 0;
     struct set_node* current = head;
-    
+
+    // Count the elements in the current bucket
     while (current)
     {
         element_count++;
         current = CAST_TO_SET_NODE(current->list_item.next);
     }
 
+    // Check for collision and exceeding maximum elements per bucket
     if (element_count >= table->max_elements_per_bucket)
     {
         printf("COLLISION: Exceeded maximum elements per bucket at index %llu\n", index);
-        return NULL;
+        return NULL;  // Return NULL if maximum elements per bucket are exceeded.
     }
 
+    // Initialize the set node with the provided key and key length
     value->set_node.key = key;
     value->set_node.key_len = key_len;
     value->set_node.list_item.next = NULL;
 
+    // Insert the set node into the set table
     if (!head)
     {
         table->nodes[index] = &value->set_node;
@@ -69,21 +76,24 @@ struct set_node* set_insert_key_value(struct set_table* table, const char* key, 
         tail->list_item.next = &value->set_node.list_item;
     }
 
-    return &value->set_node;
+    return &value->set_node;  // Return the inserted set node.
 }
 
+// Function to insert a key-value pair into the dictionary
 void dictionary_insert(struct dictionary* dict, const char* key, const size_t key_len, void* value)
 {
     struct dict_node* node = malloc(sizeof(struct dict_node));
     if (!node)
     {
-        return;
+        return;  // Return if memory allocation for the dictionary node fails.
     }
 
+    // Initialize the set node with the provided key and key length
     node->set_node.key = key;
     node->set_node.key_len = key_len;
     node->set_node.list_item.next = NULL;
 
+    // Store the value in the dictionary node based on the specified value type
     switch (dict->value_type)
     {
     case INT_TYPE:
@@ -94,9 +104,11 @@ void dictionary_insert(struct dictionary* dict, const char* key, const size_t ke
         break;
     }
 
+    // Insert the key-value pair into the set table
     set_insert_key_value(dict->set, key, key_len, node);
 }
 
+// Function to remove a key from the dictionary
 void dictionary_remove(struct dictionary* dict, const char* key)
 {
     const size_t key_len = strlen(key);
@@ -104,6 +116,7 @@ void dictionary_remove(struct dictionary* dict, const char* key)
 
     if (removed_node != NULL)
     {
+        // Free the memory allocated for the dictionary node
         struct dict_node* dict_node = CAST_TO_DICT_NODE(removed_node);
         free(dict_node);
         printf("Key removed: %s\n", key);
